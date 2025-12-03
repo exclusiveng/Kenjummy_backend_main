@@ -5,8 +5,8 @@ import { Logger } from '../utils/logger';
 export const AppDataSource = new DataSource({
   type: 'postgres',
   url: env.DATABASE_URL,
-  // Add SSL configuration for production environments like Render
-  ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  // Enable SSL for production databases. Render requires this.
+  ssl: { rejectUnauthorized: false },
   synchronize: env.NODE_ENV === 'development',
   logging: env.NODE_ENV === 'development' ? 'all' : ['error'],
   // Adjust paths for compiled JS files in production

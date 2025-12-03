@@ -31,8 +31,10 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (like Postman, mobile apps, or curl)
+    // and normalize the origin to remove trailing slashes for a robust check.
+    const normalizedOrigin = origin ? origin.replace(/\/$/, '') : '';
+    if (!origin || allowedOrigins.some(allowed => allowed.replace(/\/$/, '') === normalizedOrigin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
