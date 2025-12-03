@@ -23,7 +23,7 @@ if (!process.env.FRONTEND_URL) {
   Logger.warn('FRONTEND_URL not set. CORS may not work as expected in production.');
 }
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL || 'https://kenjummy.vercel.app',
   optionsSuccessStatus: 200, // For legacy browser support
 };
 app.use(cors(corsOptions));
