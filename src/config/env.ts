@@ -11,7 +11,12 @@ const envSchema = z.object({
 
 const parsedEnv = envSchema.safeParse(process.env);
 
-if (!parsedEnv.success) {
+if (!parsedEnv.success) { 
+  // If parsing fails, it means required environment variables are missing or invalid.
+  // It's crucial to halt the application startup in such cases to prevent unexpected behavior.
+  // Log the error in a structured format for better debugging.
+  // Ensure that the error message includes details about the missing/invalid variables.
+
   console.error(' Invalid environment variables:', JSON.stringify(parsedEnv.error.format(), null, 4));
   process.exit(1);
 }

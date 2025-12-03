@@ -7,12 +7,12 @@ export const AppDataSource = new DataSource({
   url: env.DATABASE_URL,
   // Enable SSL for production databases. Render requires this.
   ssl: { rejectUnauthorized: false },
-  synchronize: env.NODE_ENV === 'development',
-  logging: env.NODE_ENV === 'development' ? 'all' : ['error'],
+  synchronize: process.env.NODE_ENV === 'development',
+  logging: process.env.NODE_ENV === 'development' ? 'all' : ['error'],
   // Adjust paths for compiled JS files in production
-  entities: [env.NODE_ENV === 'production' ? 'dist/entities/**/*.js' : 'src/entities/**/*.ts'],
-  migrations: [env.NODE_ENV === 'production' ? 'dist/migrations/**/*.js' : 'src/migrations/**/*.ts'],
-  subscribers: [env.NODE_ENV === 'production' ? 'dist/subscribers/**/*.js' : 'src/subscribers/**/*.ts'],
+  entities: [process.env.NODE_ENV === 'production' ? 'dist/entities/**/*.js' : 'src/entities/**/*.ts'],
+  migrations: [process.env.NODE_ENV === 'production' ? 'dist/migrations/**/*.js' : 'src/migrations/**/*.ts'],
+  subscribers: [process.env.NODE_ENV === 'production' ? 'dist/subscribers/**/*.js' : 'src/subscribers/**/*.ts'],
 });
 
 export const connectDatabase = async () => {
