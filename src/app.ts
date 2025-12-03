@@ -72,6 +72,10 @@ app.use('/api/v1/users', userRouter);
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ status: 'success', message: 'Server is healthy' });
 });
+// Routes
+app.get('/', (req: Request, res: Response) => {
+  res.status(200).json({ status: 'success', message: 'Server is Running' });
+});
 
 // Test Error Route (Remove in production)
 app.get('/error', (req: Request, res: Response, next: NextFunction) => {
