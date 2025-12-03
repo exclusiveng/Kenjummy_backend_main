@@ -22,8 +22,23 @@ app.use(helmet()); // Set security HTTP headers
 if (!process.env.FRONTEND_URL) {
   Logger.warn('FRONTEND_URL not set. CORS may not work as expected in production.');
 }
+
+// Whitelist of allowed origins
+const allowedOrigins = [
+  'https://kenjummy.vercel.app',
+  process.env.FRONTEND_URL, // Add your env var to the list
+].filter(Boolean) as string[]; // Filter out undefined/null values
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'https://kenjummy.vercel.app',
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // Allow cookies and authorization headers
   optionsSuccessStatus: 200, // For legacy browser support
 };
 app.use(cors(corsOptions));
