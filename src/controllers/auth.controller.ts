@@ -9,12 +9,21 @@ import { validationResult } from 'express-validator';
 import { editUserSchema } from '../schemas/edituser.schema';
 
 
+import { env } from '../config/env';
+
 export const signup = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { fullName, email, phone, password } = req.body as SignupInput;
+    const { fullName, email, phone, password, adminSecret } = req.body as SignupInput;
     const userRepository = AppDataSource.getRepository(User);
 
-    const newUser = userRepository.create({ fullName, email, phone, password });
+    let role: 'user' | 'admin' = 'user';
+
+    // Check if admin secret is provided and matches the environment variable
+    if (adminSecret && env.ADMIN_SECRET_KEY && adminSecret === env.ADMIN_SECRET_KEY) {
+      role = 'admin';
+    }
+
+    const newUser = userRepository.create({ fullName, email, phone, password, role });
     await userRepository.save(newUser);
 
     Logger.info(`New user signed up: ${newUser.email} (ID: ${newUser.id})`);

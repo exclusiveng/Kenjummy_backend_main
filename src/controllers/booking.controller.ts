@@ -83,3 +83,86 @@ export const getMyBookings = async (req: Request, res: Response, next: NextFunct
     next(error);
   }
 };
+
+export const getAllBookings = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const bookingRepository = AppDataSource.getRepository(Booking);
+
+    const page = parseInt(req.query.page as string, 10) || 1;
+    const pageSize = parseInt(req.query.pageSize as string, 10) || DEFAULT_PAGE_SIZE;
+
+    if (isNaN(page) || page < 1) {
+      return next(new AppError('Invalid page number', 400));
+    }
+
+    if (isNaN(pageSize) || pageSize < 1 || pageSize > 100) {
+      return next(new AppError('Invalid page size', 400));
+    }
+
+    const [bookings, total] = await bookingRepository.findAndCount({
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      order: {
+        createdAt: 'DESC',
+      },
+      relations: ['user'], 
+    });
+
+    Logger.info(`Admin retrieved all bookings, page ${page}, page size ${pageSize}`);
+
+    res.status(200).json({
+      status: 'success',
+      results: bookings.length,
+      page,
+      pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+      data: {
+        bookings,
+      },
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      Logger.error(`Error retrieving all bookings: ${error.message}`);
+    }
+    next(error);
+  }
+};
+
+export const updateBookingStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    if (!['pending', 'confirmed', 'completed', 'cancelled'].includes(status)) {
+        return next(new AppError('Invalid status', 400));
+    }
+
+    const bookingRepository = AppDataSource.getRepository(Booking);
+    const booking = await bookingRepository.findOne({
+        where: { id },
+        relations: ['user']
+    });
+
+    if (!booking) {
+      return next(new AppError('No booking found with that ID', 404));
+    }
+
+    booking.status = status;
+    await bookingRepository.save(booking);
+    
+    Logger.info(`Booking ${id} status updated to ${status} by admin`);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        booking,
+      },
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      Logger.error(`Error updating booking status: ${error.message}`);
+    }
+    next(error);
+  }
+};

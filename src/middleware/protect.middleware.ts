@@ -41,3 +41,13 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     return next(new AppError('Invalid or expired token. Please log in again.', 401));
   }
 };
+
+export const restrictTo = (...roles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = (req as any).user as User;
+    if (!roles.includes(user.role)) {
+      return next(new AppError('You do not have permission to perform this action', 403));
+    }
+    next();
+  };
+};
