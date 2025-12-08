@@ -27,6 +27,9 @@ export class User {
   @Column({ type: 'enum', enum: ['user', 'admin'], default: 'user' })
   role!: 'user' | 'admin';
 
+  @Column({ default: true })
+  isActive!: boolean;
+
   @Column({ select: false })
   password!: string;
 
