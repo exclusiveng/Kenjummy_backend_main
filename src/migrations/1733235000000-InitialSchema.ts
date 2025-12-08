@@ -13,7 +13,6 @@ export class InitialSchema1733235000000 implements MigrationInterface {
                 "phone" character varying NOT NULL,
                 "role" character varying NOT NULL DEFAULT 'user',
                 "password" character varying NOT NULL,
-                "isActive" boolean NOT NULL DEFAULT true,
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
                 CONSTRAINT "UQ_users_email" UNIQUE ("email"),
