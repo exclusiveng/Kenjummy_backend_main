@@ -8,13 +8,22 @@ const userRepository = AppDataSource.getRepository(User);
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const users = await userRepository.find({
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const skip = (page - 1) * limit;
+
+        const [users, total] = await userRepository.findAndCount({
             order: { createdAt: 'DESC' },
+            skip,
+            take: limit,
         });
 
         res.status(200).json({
             status: 'success',
             results: users.length,
+            total,
+            page,
+            totalPages: Math.ceil(total / limit),
             data: {
                 users,
             },

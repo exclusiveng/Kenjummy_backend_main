@@ -27,7 +27,7 @@ export const connectDatabase = async () => {
     
     await AppDataSource.initialize();
     
-    Logger.info('✅ Database connection successful');
+    Logger.info('Database connection successful');
     Logger.info(`Connected to database: ${AppDataSource.options.type}`);
 
     // Run migrations automatically in production
@@ -37,13 +37,13 @@ export const connectDatabase = async () => {
       
       if (pendingMigrations) {
         await AppDataSource.runMigrations();
-        Logger.info('✅ Migrations completed successfully');
+        Logger.info('Migrations completed successfully');
       } else {
         Logger.info('No pending migrations');
       }
     }
   } catch (error) {
-    Logger.error('❌ Database connection failed');
+    Logger.error('Database connection failed');
     
     if (error instanceof Error) {
       Logger.error(`Error message: ${error.message}`);
