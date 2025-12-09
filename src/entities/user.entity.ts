@@ -24,8 +24,8 @@ export class User {
   @Column()
   phone!: string;
 
-  @Column({ type: 'enum', enum: ['user', 'admin'], default: 'user' })
-  role!: 'user' | 'admin';
+  @Column({ type: 'enum', enum: ['user', 'admin', 'superadmin'], default: 'user' })
+  role!: 'user' | 'admin' | 'superadmin';
 
   @Column({ default: true })
   isActive!: boolean;

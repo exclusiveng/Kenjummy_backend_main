@@ -9,9 +9,9 @@ const router = Router();
 // All routes below this are protected
 router.use(protect);
 
-// Admin routes
-router.get('/all', restrictTo('admin'), getAllBookings);
-router.patch('/:id/status', restrictTo('admin'), updateBookingStatus);
+// Admin routes (admin or superadmin)
+router.get('/all', restrictTo('admin', 'superadmin'), getAllBookings);
+router.patch('/:id/status', restrictTo('admin', 'superadmin'), updateBookingStatus);
 
 // User routes
 router.route('/my-bookings').get(getMyBookings);

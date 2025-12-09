@@ -8,6 +8,7 @@ import {
     deleteUser,
     updateUserStatus,
     promoteToAdmin,
+    demoteToUser,
 } from '../controllers/user.controller';
 
 const router = express.Router();
@@ -15,13 +16,14 @@ const router = express.Router();
 // Public or User-level routes
 router.put('/:id', editUserSchema, editUserDetail);
 
-// Admin-only routes
+// Protected routes
 router.use(protect);
-router.use(restrictTo('admin'));
+router.use(restrictTo('superadmin'));
 
 router.get('/', getAllUsers);
 router.delete('/:id', deleteUser);
 router.patch('/:id/status', updateUserStatus);
 router.patch('/:id/promote', promoteToAdmin);
+router.patch('/:id/demote', demoteToUser);
 
 export default router;

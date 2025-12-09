@@ -6,7 +6,7 @@ export const signupSchema = z.object({
     email: z.string().min(1, { message: 'Email is required' }).email('Invalid email address'),
     phone: z.string().min(1, { message: 'Phone number is required' }).min(10, 'Phone number must be at least 10 digits'),
     password: z.string().min(1, { message: 'Password is required' }).min(8, 'Password must be at least 8 characters long'),
-    adminSecret: z.string().optional(),
+    superadminSecret: z.string().optional(),
   }),
 });
 

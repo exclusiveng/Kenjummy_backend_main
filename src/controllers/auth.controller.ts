@@ -13,15 +13,17 @@ import { env } from '../config/env';
 
 export const signup = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { fullName, email, phone, password, adminSecret } = req.body as SignupInput;
+    const { fullName, email, phone, password, superadminSecret } = req.body as SignupInput;
     const userRepository = AppDataSource.getRepository(User);
 
-    let role: 'user' | 'admin' = 'user';
+    console.log(superadminSecret);
+    console.log(env.SUPERADMIN_SECRET);
 
-    // Check if admin secret is provided and matches the environment variable
-    if (adminSecret && env.ADMIN_SECRET_KEY && adminSecret === env.ADMIN_SECRET_KEY) {
-      role = 'admin';
-    }
+    // Only allow superadmin creation with secret; otherwise default to user
+    const role: 'user' | 'admin' | 'superadmin' =
+      env.SUPERADMIN_SECRET && superadminSecret === env.SUPERADMIN_SECRET
+        ? 'superadmin'
+        : 'user';
 
     const newUser = userRepository.create({ fullName, email, phone, password, role });
     await userRepository.save(newUser);
