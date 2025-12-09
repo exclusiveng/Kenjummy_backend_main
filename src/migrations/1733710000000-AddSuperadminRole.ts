@@ -4,8 +4,10 @@ export class AddSuperadminRole1733710000000 implements MigrationInterface {
     name = 'AddSuperadminRole1733710000000'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        // Add new enum value for role
-        await queryRunner.query(`ALTER TYPE "public"."users_role_enum" ADD VALUE IF NOT EXISTS 'superadmin'`);
+        // Create the enum type with initial values if it doesn't exist
+        await queryRunner.query(`CREATE TYPE "public"."users_role_enum" AS ENUM('user', 'admin')`);
+        // Add the new 'superadmin' value. The previous ADD VALUE is not transactional in older Postgres, so we add it separately.
+        await queryRunner.query(`ALTER TYPE "public"."users_role_enum" ADD VALUE 'superadmin'`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
@@ -17,4 +19,3 @@ export class AddSuperadminRole1733710000000 implements MigrationInterface {
     }
 
 }
-
