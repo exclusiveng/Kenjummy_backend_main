@@ -6,12 +6,12 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "start": "node dist/server.js",
     "build": "tsc",
-    "typeorm": "typeorm-ts-node-commonjs -d src/config/migration.datasource.ts",
-    "typeorm:prod": "node ./node_modules/typeorm/cli.js -d dist/config/migration.datasource.js",
-    "migration:generate": "npm run typeorm -- migration:generate",
-    "migration:run": "npm run typeorm -- migration:run",
-    "migration:revert": "npm run typeorm -- migration:revert",
-    "release": "npm run typeorm:prod -- migration:run"
+    "typeorm:ts": "typeorm-ts-node-commonjs -d src/config/migration.datasource.ts",
+    "typeorm:js": "node_modules/.bin/typeorm -d dist/config/migration.datasource.js",
+    "migration:generate": "npm run typeorm:ts -- migration:generate",
+    "migration:run": "npm run typeorm:ts -- migration:run",
+    "migration:revert": "npm run typeorm:ts -- migration:revert",
+    "release": "npm run typeorm:js -- migration:run"
   },
   "dependencies": {
     "axios": "^1.12.2",
