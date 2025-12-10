@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   BeforeInsert,
   OneToMany,
+  Check,
 } from 'typeorm';
 import bcrypt from 'bcryptjs';
 import { Booking } from './booking.entity';
@@ -25,6 +26,7 @@ export class User {
   phone!: string;
 
   @Column({ type: 'enum', enum: ['user', 'admin', 'superadmin'], default: 'user' })
+  @Check(`"role" IN ('user', 'admin', 'superadmin')`)
   role!: 'user' | 'admin' | 'superadmin';
 
   @Column({ default: true })

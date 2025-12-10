@@ -16,8 +16,6 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
     const { fullName, email, phone, password, superadminSecret } = req.body as SignupInput;
     const userRepository = AppDataSource.getRepository(User);
 
-    console.log(superadminSecret);
-    console.log(env.SUPERADMIN_SECRET);
 
     // Only allow superadmin creation with secret; otherwise default to user
     const role: 'user' | 'admin' | 'superadmin' =
