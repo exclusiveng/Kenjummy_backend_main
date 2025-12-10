@@ -30,8 +30,24 @@ export class AddSuperadminRole1733710000000 implements MigrationInterface {
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        // Revert the check constraint to its original state. We can safely drop the known name.
-        await queryRunner.query(`ALTER TABLE "users" DROP CONSTRAINT "CHK_users_role"`);
+        // Step 1: Dynamically find and drop the current check constraint.
+        await queryRunner.query(`
+            DO $$
+            DECLARE
+                constraint_name text;
+            BEGIN
+                SELECT conname INTO constraint_name
+                FROM pg_constraint
+                WHERE conrelid = 'users'::regclass AND conname = 'CHK_users_role'
+                LIMIT 1;
+
+                IF constraint_name IS NOT NULL THEN
+                    EXECUTE 'ALTER TABLE "users" DROP CONSTRAINT "' || constraint_name || '"';
+                END IF;
+            END $$;
+        `);
+
+        // Step 2: Add the original check constraint back.
         await queryRunner.query(`ALTER TABLE "users" ADD CONSTRAINT "CHK_users_role" CHECK ("role" IN ('user', 'admin'))`);
 
         // Note: Reverting the ENUM type itself (removing 'superadmin') is a complex and risky operation
