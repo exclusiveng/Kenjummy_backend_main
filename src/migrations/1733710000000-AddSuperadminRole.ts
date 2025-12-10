@@ -4,10 +4,24 @@ export class AddSuperadminRole1733710000000 implements MigrationInterface {
     name = 'AddSuperadminRole1733710000000'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        // The ENUM type must be altered in a separate transaction in some Postgres versions.
-        await queryRunner.query(`ALTER TYPE "public"."users_role_enum" ADD VALUE IF NOT EXISTS 'superadmin'`);
-        
-        // Drop the old check constraint if it exists, then add the new, updated one.
+        // 1) If a role enum exists, add the new value; if not, skip quietly (table may be varchar+check)
+        await queryRunner.query(`
+          DO $$
+          BEGIN
+            IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'users_role_enum') THEN
+              BEGIN
+                ALTER TYPE "public"."users_role_enum" ADD VALUE IF NOT EXISTS 'superadmin';
+              EXCEPTION
+                WHEN duplicate_object THEN NULL;
+              END;
+            END IF;
+          END$$;
+        `);
+
+        // 2) Relax column type to varchar if it was enum (avoids enum mismatch) — safe even if already varchar
+        await queryRunner.query(`ALTER TABLE "users" ALTER COLUMN "role" TYPE varchar USING "role"::text`);
+
+        // 3) Replace the check constraint to include superadmin
         await queryRunner.query(`ALTER TABLE "users" DROP CONSTRAINT IF EXISTS "CHK_users_role"`);
         await queryRunner.query(`ALTER TABLE "users" ADD CONSTRAINT "CHK_users_role" CHECK ("role" IN ('user', 'admin', 'superadmin'))`);
     }
@@ -17,9 +31,19 @@ export class AddSuperadminRole1733710000000 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "users" DROP CONSTRAINT IF EXISTS "CHK_users_role"`);
         await queryRunner.query(`ALTER TABLE "users" ADD CONSTRAINT "CHK_users_role" CHECK ("role" IN ('user', 'admin'))`);
 
-        // Postgres does not support removing an enum value, so the 'superadmin' value will remain in the type
-        // The check constraint above will prevent its use. The complex downgrade logic is often not worth the risk.
-        // NOTE: To fully revert, a more complex migration is needed to create a new enum and switch the column type.
+        // Attempt to drop enum value by recreating type only if the enum exists.
+        await queryRunner.query(`
+          DO $$
+          BEGIN
+            IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'users_role_enum') THEN
+              -- recreate enum without superadmin
+              CREATE TYPE "public"."users_role_enum_old" AS ENUM('user','admin');
+              ALTER TABLE "users" ALTER COLUMN "role" TYPE "public"."users_role_enum_old" USING "role"::text::"public"."users_role_enum_old";
+              DROP TYPE "public"."users_role_enum";
+              ALTER TYPE "public"."users_role_enum_old" RENAME TO "users_role_enum";
+            END IF;
+          END$$;
+        `);
     }
 
 }
