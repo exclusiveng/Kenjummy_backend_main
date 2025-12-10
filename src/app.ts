@@ -50,6 +50,9 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(hpp()); // Prevent parameter pollution
 app.use(xss()); // Data sanitization against XSS
 
+// 1. Trust Proxy
+app.set('trust proxy', 1);
+
 // Rate Limiting
 const limiter = rateLimit({
   max: 100, // Limit each IP to 100 requests per windowMs
