@@ -6,10 +6,10 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "start": "node dist/server.js",
     "build": "tsc",
-    "typeorm:ts": "typeorm-ts-node-commonjs -d src/config/migration.datasource.ts",
-    "typeorm:js": "node_modules/.bin/typeorm -d dist/config/migration.datasource.js",
+    "typeorm:ts": "ts-node-dev ./node_modules/typeorm/cli.js -d src/config/migration.datasource.ts",
+    "typeorm:js": "node ./node_modules/typeorm/cli.js -d dist/config/migration.datasource.js",
     "migration:generate": "npm run typeorm:ts -- migration:generate",
-    "migration:run": "npm run typeorm:ts -- migration:run",
+    "migration:run": "npm run typeorm:js -- migration:run",
     "migration:revert": "npm run typeorm:ts -- migration:revert",
     "release": "npm run typeorm:js -- migration:run"
   },
